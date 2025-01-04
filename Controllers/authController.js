@@ -137,8 +137,8 @@ const forgot_Password = async (req, res) => {
   // user.passwordExpirationDate = password_Expiration_Date
   await user.save()
 
-  const origin = 'http://localhost:3000'
-  const reset_Password_URL = `${origin}/user/reset-password?token=${password_Token}&email=${email}`
+  const origin = 'http://localhost:5173'
+  const reset_Password_URL = `${origin}/resetPassword?token=${password_Token}&email=${email}`
   res.status(StatusCodes.OK).send(`${reset_Password_URL}`)
 }
 

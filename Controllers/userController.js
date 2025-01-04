@@ -1,6 +1,7 @@
 const User = require('../Models/User')
 const { StatusCodes } = require('http-status-codes')
 const CustomError = require('../Errors')
+const Token = require('../Models/Token')
 const {
   createTokenUser,
 
@@ -51,21 +52,39 @@ const update_User = async (req, res) => {
   const user = await User.findOne({ _id: req.user.userId })
 
   user.email = email
-  user.firstName = name
+  user.name = name
 
   await user.save()
 
   const tokenUser = createTokenUser(user)
-  // const token = createJWT(tokenUser)
-  // const One_Day = 1000 * 60 * 60 * 24
-  // res.cookie('token', token, {
-  //   httpOnly: true,
-  //   expires: new Date(Date.now() + One_Day),
-  //   secure: process.env.NODE_ENV === 'production',
-  //   signed: true,
-  // })
-  create_Token_and_cookie_and_send(res, tokenUser)
-  res.status(StatusCodes.OK).json({ user: tokenUser })
+
+  let refreshToken = ''
+  // checking for refresh token
+  const existing_Token = await Token.findOne({ user: req.user.userId })
+  if (existing_Token) {
+    const { isValid } = existing_Token
+    if (!isValid) {
+      throw new CustomError.UnAuthenticatedError('Invalid Credentials')
+    }
+    refreshToken = existing_Token.refreshToken
+    create_Token_and_cookie_and_send({ res, tokenUser, refreshToken })
+    res.status(StatusCodes.OK).json({ user: tokenUser })
+    return
+  }
+  // if there is no token then we are creating one
+  refreshToken = crypto.randomBytes(40).toString('hex')
+  const ip = req.ip
+  const userAgent = req.headers['user-agent']
+
+  const user_Token = { refreshToken, ip, userAgent, user: doesUserExist._id }
+
+  await Token.create(user_Token)
+
+  create_Token_and_cookie_and_send(res, tokenUser, refreshToken)
+
+  res
+    .status(StatusCodes.OK)
+    .json({ message: `Updated Your Details Successfully`, user: tokenUser })
 }
 
 const update_User_Password = async (req, res) => {
@@ -102,3 +121,12 @@ module.exports = {
   update_User,
   update_User_Password,
 }
+
+// const token = createJWT(tokenUser)
+// const One_Day = 1000 * 60 * 60 * 24
+// res.cookie('token', token, {
+//   httpOnly: true,
+//   expires: new Date(Date.now() + One_Day),
+//   secure: process.env.NODE_ENV === 'production',
+//   signed: true,
+// })

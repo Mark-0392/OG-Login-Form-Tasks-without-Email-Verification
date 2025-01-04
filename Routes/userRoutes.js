@@ -16,10 +16,11 @@ router
   .route('/')
   .get(authenticate_User, authorize_Permissions('admin'), get_All_Users)
 router.route('/showMe').get(authenticate_User, show_Current_User)
-router.route('/updateUser').patch(authenticate_User, update_User)
+router.route('/userDetailsUpdate').patch(authenticate_User, update_User)
 router
   .route('/updateUserPassword')
   .patch(authenticate_User, update_User_Password)
+
 router.route('/:id').get(authenticate_User, get_Single_User)
 
 module.exports = router
