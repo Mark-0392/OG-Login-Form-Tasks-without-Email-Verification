@@ -58,33 +58,51 @@ const update_User = async (req, res) => {
 
   const tokenUser = createTokenUser(user)
 
-  let refreshToken = ''
+  // let refreshToken = ''
+  // // checking for refresh token
+  // const existing_Token = await Token.findOne({ user: req.user.userId })
+  // if (existing_Token) {
+  //   const { isValid } = existing_Token
+  //   if (!isValid) {
+  //     throw new CustomError.UnAuthenticatedError('Invalid Credentials')
+  //   }
+  //   refreshToken = existing_Token.refreshToken
+  //   create_Token_and_cookie_and_send({ res, tokenUser, refreshToken })
+  //   res.status(StatusCodes.OK).json({
+  //     user: tokenUser,
+  //     msg: 'Your details have been updated successfully',
+  //   })
+  //   return
+  // }
+  // let refreshToken = ''
   // checking for refresh token
   const existing_Token = await Token.findOne({ user: req.user.userId })
-  if (existing_Token) {
-    const { isValid } = existing_Token
-    if (!isValid) {
-      throw new CustomError.UnAuthenticatedError('Invalid Credentials')
-    }
-    refreshToken = existing_Token.refreshToken
-    create_Token_and_cookie_and_send({ res, tokenUser, refreshToken })
-    res.status(StatusCodes.OK).json({ user: tokenUser })
-    return
+
+  const { isValid } = existing_Token
+  if (!isValid) {
+    throw new CustomError.UnAuthenticatedError('Invalid Credentials')
   }
+  refreshToken = existing_Token.refreshToken
+  create_Token_and_cookie_and_send({ res, tokenUser, refreshToken })
+  res.status(StatusCodes.OK).json({
+    user: tokenUser,
+    msg: 'Your details have been updated successfully',
+  })
+
   // if there is no token then we are creating one
-  refreshToken = crypto.randomBytes(40).toString('hex')
-  const ip = req.ip
-  const userAgent = req.headers['user-agent']
+  // refreshToken = crypto.randomBytes(40).toString('hex')
+  // const ip = req.ip
+  // const userAgent = req.headers['user-agent']
 
-  const user_Token = { refreshToken, ip, userAgent, user: doesUserExist._id }
+  // const user_Token = { refreshToken, ip, userAgent, user: doesUserExist._id }
 
-  await Token.create(user_Token)
+  // await Token.create(user_Token)
 
-  create_Token_and_cookie_and_send(res, tokenUser, refreshToken)
+  // create_Token_and_cookie_and_send(res, tokenUser, refreshToken)
 
-  res
-    .status(StatusCodes.OK)
-    .json({ message: `Updated Your Details Successfully`, user: tokenUser })
+  // res
+  //   .status(StatusCodes.OK)
+  //   .json({ message: `Updated Your Details Successfully`, user: tokenUser })
 }
 
 const update_User_Password = async (req, res) => {
