@@ -79,9 +79,7 @@ const delete_the_Task = async (req, res) => {
 
   const delete_Task = await Tasks.findOneAndDelete({ _id: taskId })
 
-  res
-    .status(StatusCodes.OK)
-    .json({ msg: 'task deleted successfully', delete_Task })
+  res.status(StatusCodes.OK).json({ msg: 'task deleted successfully' })
 }
 
 module.exports = {
